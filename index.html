@@ -1,13 +1,15 @@
 <!doctype html>
-<html lang="zh-CN">
-<head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<html lang="zh-CN" data-page-node-id="KCr302KuWcAJN5zZT9qHKo">
+<head data-page-node-id="PTrPFVpoLthnvqgsXNXEql">
+<meta charset="utf-8" data-page-node-id="9FspoHF3cwmDfy7ifKX5ue" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" data-page-node-id="8RovcJ35JSoOhkWqn3uySF" />
 <title>星语 · 星座运势</title>
-<meta name="description" content="神秘星空风格的星座运势预测工具：今日/明日/本周/本月运势、分项指数、幸运要素、星座配对。" />
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Orbitron:wght@500;700&family=Noto+Serif+SC:wght@500;700&display=swap" rel="stylesheet" />
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="favicon.svg" />
+<meta name="description" content="神秘星空风格的星座运势预测工具：今日/明日/本周/本月运势、分项指数、幸运要素、星座配对。" data-page-node-id="bCxk8VLsai1RGfCnSb7uBf" />
+<link rel="preconnect" href="https://fonts.googleapis.com" data-page-node-id="ofvjn0nTvTPIcTmTEPbQ74" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin data-page-node-id="CP6RONkaCH72ci5zG5ZCiI" />
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Orbitron:wght@500;700&family=Noto+Serif+SC:wght@500;700&display=swap" rel="stylesheet" data-page-node-id="gTIXO6Fb9NX1G4nMVVrNr4" />
 <style>
   :root{
     --bg-0:#0B0C2A;
@@ -150,47 +152,47 @@
   @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 </style>
 </head>
-<body>
-<canvas id="stars"></canvas>
-<div class="nebula"></div>
+<body data-page-node-id="PzqoEslUBmYoFTC8UEA620">
+<canvas id="stars" data-page-node-id="f9aY3lonGUFeYFNUJxZFCf"></canvas>
+<div class="nebula" data-page-node-id="BqczO0ipZeGl5PC0iGCGje"></div>
 
-<div class="wrap">
-  <header class="hero">
-    <div class="badge">Zodiac Oracle</div>
-    <h1>星语 · 星座运势</h1>
-    <p>仰望星空，读懂今日属于你的能量</p>
+<div class="wrap" data-page-node-id="KBMBWShDKcAlAGUdpmjAHj">
+  <header class="hero" data-page-node-id="8jrrJVwWK1jr1V7s9BbEcg">
+    <div class="badge" data-page-node-id="lU8MtP0DkPKZ8PhbZWKGti">Zodiac Oracle</div>
+    <h1 data-page-node-id="JXLoFVrRU2dKgxZ0ygYPQb">星语 · 星座运势</h1>
+    <p data-page-node-id="zBaYsMlprJJ7BE9ALgvBWh">仰望星空，读懂今日属于你的能量</p>
   </header>
 
-  <div class="section-title"><span class="dot"></span><h2>选择你的星座</h2><span class="line"></span></div>
-  <div class="grid" id="grid"></div>
-  <div class="tools">
-    <label>🎂 生日识别：
-      <input type="date" id="bday" />
+  <div class="section-title" data-page-node-id="tRNDqjyskwBwRACFluIFTS"><span class="dot" data-page-node-id="06DKpbIf3gKnrjn4nCntev"></span><h2 data-page-node-id="OM0elgzcaHeKSEVIFJMXsa">选择你的星座</h2><span class="line" data-page-node-id="WIBdEvqcTToXxEJqXGwP7P"></span></div>
+  <div class="grid" id="grid" data-page-node-id="Evxq6Hda119pObNFbSAZMY"></div>
+  <div class="tools" data-page-node-id="OFw6Yk9M1rGbrurqxKJ04s">
+    <label data-page-node-id="N7pUj05UDBS4YndNYNHwaD">🎂 生日识别：
+      <input type="date" id="bday" data-page-node-id="FJDtwyZSBTZa1nPbd2LSnA" />
     </label>
-    <span class="hint" id="bdayHint">输入生日自动匹配星座</span>
+    <span class="hint" id="bdayHint" data-page-node-id="gb1gjFxzFrCBva9GnY1W3Y">输入生日自动匹配星座</span>
   </div>
 
-  <div class="section-title"><span class="dot"></span><h2>今日运势</h2><span class="line"></span></div>
-  <div class="panel" id="panel"></div>
+  <div class="section-title" data-page-node-id="VUCBmU2y2TN77J9uvXMbFQ"><span class="dot" data-page-node-id="YdYmqRapnw52f657qHaNKa"></span><h2 data-page-node-id="FHvBrqCZwy5LYd6Fh0DycW">今日运势</h2><span class="line" data-page-node-id="HD0VmFvgOjx19FSEcezFKJ"></span></div>
+  <div class="panel" id="panel" data-page-node-id="tqzfNxs7VUJk6hcbrHn8DL"></div>
 
-  <div class="section-title"><span class="dot"></span><h2>星座配对</h2><span class="line"></span></div>
-  <div class="panel">
-    <div class="pair-grid">
-      <div class="pair-sel">
-        <div class="psym" id="psymA">♈</div>
-        <select id="selA"></select>
+  <div class="section-title" data-page-node-id="IoDNFkwLLq68ppyxUWeghQ"><span class="dot" data-page-node-id="jCsfBxrAyi7duTNmnDvG1Y"></span><h2 data-page-node-id="kH9BRxe0HidfBmvsb01G7R">星座配对</h2><span class="line" data-page-node-id="4SdIf5DxyLPB74YVr3fDSG"></span></div>
+  <div class="panel" data-page-node-id="DTTTEkb6WkhKkIEEtMdHhV">
+    <div class="pair-grid" data-page-node-id="GRuoMGp1kNwuGqgi8J5Cib">
+      <div class="pair-sel" data-page-node-id="GNFOfiI9e4URrlJ8M9vDJH">
+        <div class="psym" id="psymA" data-page-node-id="PJFlTKmOKA0hksvHK8amoY">♈</div>
+        <select id="selA" data-page-node-id="FPo54ZJEhkNsvaV69VEPtN"></select>
       </div>
-      <div class="pair-mid">✕</div>
-      <div class="pair-sel">
-        <div class="psym" id="psymB">♎</div>
-        <select id="selB"></select>
+      <div class="pair-mid" data-page-node-id="uxgyhMCQYNMzFml1w7MdsW">✕</div>
+      <div class="pair-sel" data-page-node-id="ZtRg9yz6YB7I3SqrycE0kU">
+        <div class="psym" id="psymB" data-page-node-id="pYRIVuadXOalgxkLy842di">♎</div>
+        <select id="selB" data-page-node-id="ElmGPVFGLY9XUXgBXmQMau"></select>
       </div>
     </div>
-    <div class="pair-result" id="pairResult"></div>
+    <div class="pair-result" id="pairResult" data-page-node-id="PtgWJCKqGDtCklrTnMyRxb"></div>
   </div>
 
-  <footer>
-    星语 · 星座运势 ｜ 运势内容由算法基于日期与星座确定生成，仅供娱乐参考，请勿替代专业建议。<br/>
+  <footer data-page-node-id="CyGDg7MxoegDY28z4W8gRz">
+    星语 · 星座运势 ｜ 运势内容由算法基于日期与星座确定生成，仅供娱乐参考，请勿替代专业建议。<br data-page-node-id="RF9EvVaNsRQgEVD7XQAJIr"/>
     本地运行，数据仅存储于你的浏览器（localStorage）。
   </footer>
 </div>
