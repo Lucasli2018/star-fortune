@@ -150,6 +150,53 @@
 
   .fade{animation:fade .5s ease}
   @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  /* 模块导航 */
+  html{scroll-behavior:smooth}
+  .modnav{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:16px 0 4px}
+  .modnav a{cursor:pointer;text-decoration:none;font-size:13px;color:var(--text-dim);
+    border:1px solid var(--border);background:var(--card);border-radius:999px;padding:8px 18px;
+    transition:.2s;backdrop-filter:blur(8px)}
+  .modnav a:hover{color:var(--text);border-color:var(--primary);box-shadow:var(--glow)}
+
+  /* 塔罗 */
+  .tarot-actions{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-bottom:16px}
+  .tarot-actions button{cursor:pointer;font-family:inherit;font-size:14px;color:#1A1040;
+    background:linear-gradient(90deg,var(--accent),#FFE9A8);border:none;border-radius:12px;
+    padding:11px 22px;font-weight:700;box-shadow:0 0 18px rgba(255,213,79,0.35);transition:.2s}
+  .tarot-actions button.ghost{color:var(--text);background:var(--card);border:1px solid var(--border);
+    box-shadow:none;font-weight:400}
+  .tarot-actions button:hover{transform:translateY(-2px)}
+  .tarot-draw{display:flex;gap:18px;flex-wrap:wrap;justify-content:center}
+  .tarot-card{width:130px;height:200px;perspective:900px;cursor:pointer}
+  .tarot-inner{position:relative;width:100%;height:100%;transition:transform .7s cubic-bezier(.2,.8,.2,1);
+    transform-style:preserve-3d}
+  .tarot-card.flipped .tarot-inner{transform:rotateY(180deg)}
+  .tarot-face{position:absolute;inset:0;border-radius:14px;backface-visibility:hidden;
+    border:1px solid var(--border);display:flex;flex-direction:column;align-items:center;justify-content:center;
+    padding:10px;text-align:center;overflow:hidden}
+  .tarot-back{background:linear-gradient(160deg,rgba(124,77,255,0.25),rgba(77,208,225,0.12));
+    box-shadow:0 8px 24px rgba(0,0,0,0.4)}
+  .tarot-back .bk{font-size:34px;color:var(--accent);text-shadow:0 0 16px rgba(255,213,79,0.6);
+    animation:spin 12s linear infinite}
+  .tarot-back .bt{font-size:11px;color:var(--text-dim);margin-top:8px;letter-spacing:2px;font-family:"Orbitron"}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .tarot-front{transform:rotateY(180deg);background:
+    radial-gradient(120px 120px at 50% 30%, rgba(124,77,255,0.35), transparent 70%),
+    linear-gradient(160deg,#2a1a6e,#0B0C2A);
+    box-shadow:0 8px 24px rgba(0,0,0,0.45)}
+  .tarot-front .tnum{font-family:"Orbitron";font-size:13px;color:var(--accent);letter-spacing:1px}
+  .tarot-front .tsym{font-size:50px;margin:6px 0;filter:drop-shadow(0 0 10px rgba(255,213,79,0.5))}
+  .tarot-front .tnm{font-weight:700;font-size:15px}
+  .tarot-front .ten{font-size:10px;color:var(--text-dim);font-family:"Orbitron";margin-top:2px}
+  .tarot-front.rev .tsym{transform:rotate(180deg)}
+  .tarot-front.rev .tnum::after{content:' 逆';color:var(--pink)}
+  .tarot-read{margin-top:18px;border:1px solid var(--border);border-radius:18px;background:var(--card-strong);
+    padding:18px;font-size:14px;color:var(--text);text-align:justify;line-height:1.8}
+  .tarot-read h4{color:var(--accent);font-size:14px;margin-bottom:10px;letter-spacing:1px}
+  .tarot-read .rname{font-weight:700;color:var(--text)}
+  .tarot-read .rtag{display:inline-block;font-size:11px;padding:2px 9px;border-radius:999px;
+    background:rgba(255,213,79,0.15);color:var(--accent);border:1px solid rgba(255,213,79,0.3);margin-left:6px}
+  .tarot-read p{margin-bottom:10px}
 </style>
 </head>
 <body data-page-node-id="PzqoEslUBmYoFTC8UEA620">
@@ -163,7 +210,12 @@
     <p data-page-node-id="zBaYsMlprJJ7BE9ALgvBWh">仰望星空，读懂今日属于你的能量</p>
   </header>
 
-  <div class="section-title" data-page-node-id="tRNDqjyskwBwRACFluIFTS"><span class="dot" data-page-node-id="06DKpbIf3gKnrjn4nCntev"></span><h2 data-page-node-id="OM0elgzcaHeKSEVIFJMXsa">选择你的星座</h2><span class="line" data-page-node-id="WIBdEvqcTToXxEJqXGwP7P"></span></div>
+  <nav class="modnav">
+    <a href="#zodiac-main">🌟 星座运势</a>
+    <a href="#tarot">🔮 塔罗占卜</a>
+  </nav>
+
+  <div class="section-title" id="zodiac-main" data-page-node-id="tRNDqjyskwBwRACFluIFTS"><span class="dot" data-page-node-id="06DKpbIf3gKnrjn4nCntev"></span><h2 data-page-node-id="OM0elgzcaHeKSEVIFJMXsa">选择你的星座</h2><span class="line" data-page-node-id="WIBdEvqcTToXxEJqXGwP7P"></span></div>
   <div class="grid" id="grid" data-page-node-id="Evxq6Hda119pObNFbSAZMY"></div>
   <div class="tools" data-page-node-id="OFw6Yk9M1rGbrurqxKJ04s">
     <label data-page-node-id="N7pUj05UDBS4YndNYNHwaD">🎂 生日识别：
@@ -189,6 +241,18 @@
       </div>
     </div>
     <div class="pair-result" id="pairResult" data-page-node-id="PtgWJCKqGDtCklrTnMyRxb"></div>
+  </div>
+
+  <div class="section-title" id="tarot"><span class="dot"></span><h2>🔮 塔罗占卜</h2><span class="line"></span></div>
+  <div class="panel">
+    <p style="color:var(--text-dim);font-size:13px;margin-bottom:14px">以星辰为引，借塔罗照见内心的答案。牌阵由当日能量确定生成，点击卡牌可翻看，仅供娱乐参考。</p>
+    <div class="tarot-actions">
+      <button id="tarotOne">🌟 今日一抽</button>
+      <button id="tarotThree" class="ghost">🔮 三牌阵</button>
+      <button id="tarotReset" class="ghost">↺ 重新洗牌</button>
+    </div>
+    <div class="tarot-draw" id="tarotDraw"></div>
+    <div class="tarot-read" id="tarotRead" style="display:none"></div>
   </div>
 
   <footer data-page-node-id="CyGDg7MxoegDY28z4W8gRz">
@@ -544,6 +608,93 @@
     addEventListener('resize', resize); resize(); requestAnimationFrame(tick);
   }
 
+  /* ---------- 塔罗 ---------- */
+  var TAROT = [
+    {n:0, roman:'0', cn:'愚者', en:'The Fool', sym:'🃏', up:'新的旅程即将开始，带着纯真与勇气纵身一跃，未知中也藏着无限可能。', rev:'小心鲁莽与逃避。此刻宜三思后行，别让冲动替你做决定。'},
+    {n:1, roman:'I', cn:'魔术师', en:'The Magician', sym:'🪄', up:'你已握有实现愿望的所有工具，专注与行动力会把灵感变成现实。', rev:'才华被犹豫稀释。重新审视目标，别让天赋闲置在角落。'},
+    {n:2, roman:'II', cn:'女祭司', en:'High Priestess', sym:'🌙', up:'答案藏在直觉深处。静下来倾听内在的声音，秘密会自然浮现。', rev:'过度理性遮蔽了灵性。试着放下掌控，信任那份说不清的预感。'},
+    {n:3, roman:'III', cn:'女皇', en:'The Empress', sym:'👑', up:'丰盛与孕育的能量环绕你，创造力与温柔皆具，适合滋养关系与计划。', rev:'别对自己太苛刻。允许休息与慵懒，丰盛需要呼吸的空间。'},
+    {n:4, roman:'IV', cn:'皇帝', en:'The Emperor', sym:'🏛️', up:'秩序与掌控带来稳定。以结构化的方式推进，权威与成果都会到来。', rev:'刚硬可能变成固执。适度放权，刚柔并济才能走得更远。'},
+    {n:5, roman:'V', cn:'教皇', en:'The Hierophant', sym:'🔑', up:'传统与指引为你撑腰。向经验者请教，遵循既有路径会更稳妥。', rev:'教条正在束缚你。是时候打破常规，走出属于自己的路。'},
+    {n:6, roman:'VI', cn:'恋人', en:'The Lovers', sym:'💞', up:'重要的选择临近，遵从内心真实的价值，关系与决定都将和谐。', rev:'犹豫与失衡浮现。厘清心中优先序，别让外在声音盖过本心。'},
+    {n:7, roman:'VII', cn:'战车', en:'The Chariot', sym:'🛡️', up:'凭借意志与专注，你能驾驭矛盾、冲破阻碍，胜利就在前方。', rev:'方向失控。先稳住内在再出发，蛮干只会消耗能量。'},
+    {n:8, roman:'VIII', cn:'力量', en:'Strength', sym:'🦁', up:'真正的力量是温柔的坚定。以耐心驯服恐惧，你比想象中强大。', rev:'自我怀疑在削弱你。重新连接内在的勇气，温柔也能所向披靡。'},
+    {n:9, roman:'IX', cn:'隐士', en:'The Hermit', sym:'🏮', up:'是向内求索的时刻。独处与反思会照亮你真正想走的路。', rev:'过度孤立或逃避。适度回归人群，平衡的孤独才有养分。'},
+    {n:10, roman:'X', cn:'命运之轮', en:'Wheel of Fortune', sym:'🎡', up:'周期正在转动，好运或转机将至。顺势而为，接纳变化。', rev:'低谷或停滞期。这不是终点，轮转仍会继续，守住耐心。'},
+    {n:11, roman:'XI', cn:'正义', en:'Justice', sym:'⚖️', up:'因果分明，公正回归。诚实面对，你会得到应得的结果。', rev:'失衡与推诿显现。正视责任，公平需要先对自己诚实。'},
+    {n:12, roman:'XII', cn:'倒吊人', en:'The Hanged Man', sym:'🙃', up:'换个角度看世界。暂时的停顿与牺牲，会换来全新的领悟。', rev:'不必要的拖延。别用「等待」逃避行动，该转身时就转身。'},
+    {n:13, roman:'XIII', cn:'死神', en:'Death', sym:'💀', up:'结束亦是开始。放下不再适合的人和事，新生才有空间。', rev:'抗拒改变带来停滞。允许结束发生，蜕变才真正启动。'},
+    {n:14, roman:'XIV', cn:'节制', en:'Temperance', sym:'🏺', up:'平衡与调和的能量。不疾不徐地融合矛盾，身心渐入佳境。', rev:'失衡与极端。找回节奏，中庸调和是此刻的关键词。'},
+    {n:15, roman:'XV', cn:'恶魔', en:'The Devil', sym:'😈', up:'觉察束缚你的执念与欲望。看清枷锁，自由其实触手可及。', rev:'正在挣脱桎梏。意识到问题就是解放的第一步，继续向前。'},
+    {n:16, roman:'XVI', cn:'高塔', en:'The Tower', sym:'⚡', up:'突如其来的震荡会拆掉虚假的根基。接受崩塌，重建更真实。', rev:'灾难后的余震。避免仓促重建，先疗愈再出发。'},
+    {n:17, roman:'XVII', cn:'星星', en:'The Star', sym:'⭐', up:'希望与疗愈降临。黑暗之后星光指引，怀抱信念，温柔自愈。', rev:'信心暂时低落。别急，星光仍在，给自己一点恢复的时间。'},
+    {n:18, roman:'XVIII', cn:'月亮', en:'The Moon', sym:'🌕', up:'迷雾与潜意识浮现。勿急于下结论，留意直觉与隐藏的真相。', rev:'困惑正在散去。走出自我怀疑，迷雾后的路会逐渐清晰。'},
+    {n:19, roman:'XIX', cn:'太阳', en:'The Sun', sym:'☀️', up:'喜悦与成功普照。坦荡做自己，温暖与好运自然围绕。', rev:'短暂阴霾。别让一时的低落遮蔽了本就明亮的你。'},
+    {n:20, roman:'XX', cn:'审判', en:'Judgement', sym:'📯', up:'召唤与觉醒来临。回顾过往、原谅自己，做出升华的选择。', rev:'自我批判过重。放下苛责，你已足够，是时候向前了。'},
+    {n:21, roman:'XXI', cn:'世界', en:'The World', sym:'🌍', up:'圆满与达成。一段旅程画上句号，庆祝，然后迎接新循环。', rev:'临门一脚的松懈。收尾需要专注，未完成的闭环等待你补上。'}
+  ];
+
+  function tarotOne(){
+    var r = rng('T1|'+ymd(TODAY));
+    var idx = Math.floor(r()*TAROT.length);
+    var card = TAROT[idx];
+    var rev = r() < 0.5;
+    renderTarotCards([{card:card, rev:rev, pos:'今日指引'}], '今日一抽');
+  }
+  function tarotThree(){
+    var r = rng('T3|'+ymd(TODAY));
+    var pool = TAROT.slice();
+    var chosen = [];
+    var positions = ['过去','现在','未来'];
+    for(var i=0;i<3;i++){
+      var idx = Math.floor(r()*pool.length);
+      var card = pool.splice(idx,1)[0];
+      chosen.push({card:card, rev:r()<0.5, pos:positions[i]});
+    }
+    renderTarotCards(chosen, '三牌阵');
+  }
+  function renderTarotCards(cards, mode){
+    var draw = document.getElementById('tarotDraw');
+    draw.innerHTML = '';
+    cards.forEach(function(c, i){
+      var d = document.createElement('div');
+      d.className = 'tarot-card';
+      d.innerHTML = '<div class="tarot-inner">'+
+        '<div class="tarot-face tarot-back"><div class="bk">✦</div><div class="bt">TAROT</div></div>'+
+        '<div class="tarot-face tarot-front'+(c.rev?' rev':'')+'">'+
+          '<div class="tnum">'+c.card.roman+'</div>'+
+          '<div class="tsym">'+c.card.sym+'</div>'+
+          '<div class="tnm">'+c.card.cn+'</div>'+
+          '<div class="ten">'+c.card.en+'</div>'+
+        '</div></div>';
+      draw.appendChild(d);
+      (function(el, delay){ setTimeout(function(){ el.classList.add('flipped'); }, delay); })(d, 200 + i*250);
+      d.addEventListener('click', function(){ d.classList.toggle('flipped'); });
+    });
+    var read = document.getElementById('tarotRead');
+    var html = '<h4>🔮 '+mode+' · 牌意解读</h4>';
+    cards.forEach(function(c){
+      var txt = c.rev ? c.card.rev : c.card.up;
+      html += '<p><span class="rname">'+c.card.cn+(c.rev?'（逆位）':'（正位）')+'</span>'+
+        '<span class="rtag">'+c.pos+'</span><br>'+txt+'</p>';
+    });
+    if(mode === '三牌阵'){
+      html += '<p style="color:var(--text-dim);margin-top:10px">过去之牌映照来路，现在之牌映照当下，未来之牌映照可能。三张合观，方见全貌。</p>';
+    } else {
+      html += '<p style="color:var(--text-dim);margin-top:10px">一牌之谕，借你心中所问而显。信则有，疑则观，皆是照见自己的镜子。</p>';
+    }
+    read.innerHTML = html;
+    read.style.display = 'block';
+  }
+  function initTarot(){
+    document.getElementById('tarotOne').addEventListener('click', tarotOne);
+    document.getElementById('tarotThree').addEventListener('click', tarotThree);
+    document.getElementById('tarotReset').addEventListener('click', function(){
+      document.getElementById('tarotDraw').innerHTML = '';
+      document.getElementById('tarotRead').style.display = 'none';
+    });
+  }
+
   /* ---------- 启动 ---------- */
   function init(){
     try{
@@ -555,6 +706,7 @@
     initBirthday();
     renderPanel();
     renderPair();
+    initTarot();
     starfield();
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', init);
