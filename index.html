@@ -139,7 +139,7 @@
   .bar-fill{height:100%;border-radius:999px;transition:width .8s cubic-bezier(.2,.8,.2,1)}
   .bar-row .bv{font-family:"Orbitron",sans-serif;font-size:13px;text-align:right;color:var(--text)}
 
-  .lucky{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:18px 0;min-width:0}
+  .lucky{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:18px 0;min-width:0}
   @media(max-width:560px){.lucky{grid-template-columns:repeat(2,1fr)}}
   @media(max-width:380px){.lucky{grid-template-columns:1fr}}
   .lucky .item{border:1px solid var(--border);border-radius:16px;background:var(--card-strong);padding:14px;text-align:center;min-width:0;overflow:hidden}
@@ -152,7 +152,31 @@
   .detail p{font-size:14px;color:var(--text);text-align:justify;overflow-wrap:anywhere}
   .detail .yiji{display:flex;gap:18px;margin-top:12px;flex-wrap:wrap;font-size:13px;color:var(--text-dim);overflow-wrap:anywhere}
   .detail .yiji b{color:var(--text);white-space:nowrap}
+  .detail .dir{margin-top:12px;font-size:13px;color:var(--text-dim);overflow-wrap:anywhere}
   .quote{margin-top:14px;font-style:italic;color:var(--ice);font-size:14px;border-left:3px solid var(--primary);padding-left:12px;overflow-wrap:anywhere}
+
+  /* 运势日历 */
+  .cal-head{display:flex;align-items:center;justify-content:center;gap:18px;margin:6px 0 14px}
+  .cal-head button{cursor:pointer;font-family:inherit;font-size:18px;color:var(--text);
+    background:var(--card);border:1px solid var(--border);border-radius:10px;width:38px;height:38px;transition:.2s}
+  .cal-head button:hover{border-color:var(--primary);box-shadow:var(--glow)}
+  .cal-head .cal-ml{font-family:"Cinzel","Noto Serif SC",serif;font-size:18px;min-width:150px;text-align:center}
+  .cal-weekdays{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:6px}
+  .cal-weekdays span{text-align:center;font-size:12px;color:var(--text-dim)}
+  .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+  .cal-cell{position:relative;aspect-ratio:1/1;min-height:44px;border:1px solid var(--border);border-radius:12px;
+    background:var(--card);display:flex;flex-direction:column;align-items:center;justify-content:center;
+    cursor:pointer;font-size:14px;transition:.2s;overflow:hidden;min-width:0}
+  .cal-cell:hover{border-color:var(--primary);box-shadow:var(--glow);transform:translateY(-2px)}
+  .cal-cell.out{opacity:0.32}
+  .cal-cell.out:hover{transform:none;border-color:var(--border);box-shadow:none}
+  .cal-cell .tier{position:absolute;top:5px;right:6px;width:7px;height:7px;border-radius:50%}
+  .cal-cell.weekend .d{color:var(--ice)}
+  .cal-detail{margin-top:16px;border-top:1px dashed var(--border);padding-top:16px}
+  .cal-detail h4{font-size:14px;color:var(--accent);margin-bottom:10px;letter-spacing:1px}
+  .cal-detail .cd-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:10px}
+  .cal-detail .cd-score{font-family:"Orbitron",sans-serif;font-size:30px;font-weight:700}
+  .cal-detail .cd-bars{display:grid;gap:8px}
 
   /* 配对 */
   .pair-grid{display:grid;grid-template-columns:1fr auto 1fr;gap:14px;align-items:center}
@@ -235,6 +259,7 @@
 
   <nav class="modnav">
     <a href="#zodiac-main">🌟 星座运势</a>
+    <a href="#calendar-title">📅 运势日历</a>
     <a href="#tarot">🔮 塔罗占卜</a>
   </nav>
 
@@ -252,6 +277,19 @@
 
   <div class="section-title" id="history-title" style="display:none"><span class="dot"></span><h2>🕘 最近查看</h2><span class="line"></span></div>
   <div class="history" id="history" style="display:none"></div>
+
+  <div class="section-title" id="calendar-title"><span class="dot"></span><h2>📅 运势日历</h2><span class="line"></span></div>
+  <div class="panel">
+    <p style="color:var(--text-dim);font-size:13px;margin-bottom:8px">按当前星座生成当月每日综合运势，右上色点代表吉凶档位，点击任意日期查看当天详情。</p>
+    <div class="cal-head">
+      <button id="calPrev" aria-label="上个月">‹</button>
+      <span class="cal-ml" id="calMonthLabel"></span>
+      <button id="calNext" aria-label="下个月">›</button>
+    </div>
+    <div class="cal-weekdays"><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span></div>
+    <div class="cal-grid" id="calGrid"></div>
+    <div class="cal-detail" id="calDetail" style="display:none"></div>
+  </div>
 
   <div class="section-title" data-page-node-id="IoDNFkwLLq68ppyxUWeghQ"><span class="dot" data-page-node-id="jCsfBxrAyi7duTNmnDvG1Y"></span><h2 data-page-node-id="kH9BRxe0HidfBmvsb01G7R">星座配对</h2><span class="line" data-page-node-id="4SdIf5DxyLPB74YVr3fDSG"></span></div>
   <div class="panel" data-page-node-id="DTTTEkb6WkhKkIEEtMdHhV">
@@ -314,6 +352,17 @@
     {n:'月光银',v:'#CFD8E8'},{n:'星尘粉',v:'#F48FB1'},{n:'薄荷绿',v:'#5FD6A8'},
     {n:'暖阳金',v:'#FFD54F'},{n:'深海青',v:'#2BB6C4'},{n:'蔷薇红',v:'#FF6B8B'},
     {n:'薄雾灰',v:'#9AA7BD'},{n:'琥珀橙',v:'#FFA552'},{n:'葡萄紫',v:'#9B6CFF'}
+  ];
+
+  var DIRECTIONS = [
+    {n:'正东', desc:'面向东方，利于开启新计划、主动出击与拓展人脉。'},
+    {n:'东南', desc:'东南主生发，宜沟通协调、学习进修与财务规划。'},
+    {n:'正南', desc:'南方旺名气，适合展现自我、争取认可与公开表达。'},
+    {n:'西南', desc:'西南利稳定，宜经营家庭、深化合作与长期关系。'},
+    {n:'正西', desc:'西方主收获，适合复盘总结、享受成果与放松疗愈。'},
+    {n:'西北', desc:'西北助贵人，宜寻求指引、结识前辈与把握机遇。'},
+    {n:'正北', desc:'北方旺内省，适合沉淀思考、规划方向与静心修养。'},
+    {n:'东北', desc:'东北主积累，宜打基础、整理收纳与稳步推进。'}
   ];
 
   var QUOTES = [
@@ -408,6 +457,7 @@
     DIMENSIONS.forEach(function(d){ dim[d.k] = 50 + Math.floor(r()*50); }); // 50-99
     var luckyNum = 1 + Math.floor(r()*9);
     var luckyColor = pick(r, LUCKY_COLORS);
+    var luckyDir = pick(r, DIRECTIONS);
     var pool = CONSTELLATIONS.filter(function(x){ return x.key!==c.key; });
     var pairC = pick(r, pool);
     var quote = pick(r, QUOTES);
@@ -416,7 +466,7 @@
     var detail = DIMENSIONS.map(function(d){
       return TEXTS[d.k][tier(dim[d.k])];
     }).join('');
-    return {overall:overall, dim:dim, luckyNum:luckyNum, luckyColor:luckyColor,
+    return {overall:overall, dim:dim, luckyNum:luckyNum, luckyColor:luckyColor, luckyDir:luckyDir,
             pair:c.name+' × '+pairC.name, pairKey:pairC.key, quote:quote, yi:yi, ji:ji, detail:detail};
   }
 
@@ -529,10 +579,12 @@
         '<div class="item"><div class="k">幸运数字</div><div class="v">'+f.luckyNum+'</div></div>'+
         '<div class="item"><div class="k">幸运颜色</div><div class="v"><span class="swatch" style="background:'+f.luckyColor.v+';color:'+f.luckyColor.v+'"></span>'+f.luckyColor.n+'</div></div>'+
         '<div class="item"><div class="k">速配星座</div><div class="v">'+f.pair+'</div></div>'+
+        '<div class="item"><div class="k">吉位</div><div class="v">'+f.luckyDir.n+'</div></div>'+
       '</div>'+
       '<div class="detail fade"><h4>📜 运势详解</h4><p>'+f.detail+'</p>'+
         '<div class="yiji"><span>宜：<b>'+f.yi+'</b></span><span>忌：<b>'+f.ji+'</b></span></div>'+
         '<div class="quote">「'+f.quote+'」</div>'+
+        '<div class="dir">🧭 今日吉位 · '+f.luckyDir.n+'：'+f.luckyDir.desc+'</div>'+
       '</div>';
     // 绑定周期切换
     Array.prototype.forEach.call(panel.querySelectorAll('#tabs button'), function(b){
@@ -565,7 +617,7 @@
   function selectConstellation(key){
     current.key=key;
     setAccent(BY_KEY[key]);
-    renderGrid(); renderPanel();
+    renderGrid(); renderPanel(); renderCalendar();
     lsSet('star.key', key);
   }
 
@@ -610,7 +662,7 @@
       '综合运势：'+f.overall+' 分（'+lvText+'）',
       DIMENSIONS.map(function(d){ return d.label+' '+f.dim[d.k]; }).join(' ｜ '),
       '幸运数字：'+f.luckyNum+'　幸运颜色：'+f.luckyColor.n,
-      '速配星座：'+f.pair,
+      '速配星座：'+f.pair+'　吉位：'+f.luckyDir.n,
       '宜：'+f.yi+'　忌：'+f.ji,
       '「'+f.quote+'」'
     ].join('\n');
@@ -737,10 +789,10 @@
     // 幸运要素
     ctx.textAlign='center';
     ctx.fillStyle='rgba(176,168,208,0.9)'; ctx.font='13px "Noto Serif SC", serif';
-    ctx.fillText('幸运数字 '+f.luckyNum+'　·　幸运颜色 '+f.luckyColor.n+'　·　速配 '+f.pair, W/2, 838);
+    wrapText(ctx, '幸运数字 '+f.luckyNum+'　·　幸运颜色 '+f.luckyColor.n+'　·　速配 '+f.pair+'　·　吉位 '+f.luckyDir.n, W/2, 824, W-88, 22);
     // 寄语
     ctx.fillStyle='rgba(77,208,225,0.95)'; ctx.font='italic 15px "Noto Serif SC", serif';
-    wrapText(ctx, '「'+f.quote+'」', W/2, 882, W-120, 24);
+    wrapText(ctx, '「'+f.quote+'」', W/2, 884, W-120, 24);
     // 页脚
     ctx.fillStyle='rgba(176,168,208,0.55)'; ctx.font='12px "Noto Serif SC", serif';
     ctx.fillText('星语 · 仅供娱乐参考', W/2, H-28);
@@ -935,6 +987,76 @@
     });
   }
 
+  /* ---------- 运势日历 ---------- */
+  var calState = {y:TODAY.getFullYear(), m:TODAY.getMonth()};
+  function tierInfo(v){
+    if(v>=85) return {label:'大吉', color:'#FFD54F'};
+    if(v>=70) return {label:'中吉', color:'#81C784'};
+    if(v>=60) return {label:'小吉', color:'#4DD0E1'};
+    return {label:'平', color:'#B0A8D0'};
+  }
+  function renderCalendar(){
+    var y=calState.y, m=calState.m;
+    var label=document.getElementById('calMonthLabel');
+    if(label) label.textContent=y+'年 '+(m+1)+'月';
+    var grid=document.getElementById('calGrid');
+    if(!grid) return;
+    grid.innerHTML='';
+    var first=new Date(y,m,1);
+    var startDay=(first.getDay()+6)%7; // 周一=0
+    var daysInMonth=new Date(y,m+1,0).getDate();
+    var i, d;
+    for(i=0;i<startDay;i++){
+      var empty=document.createElement('div');
+      empty.className='cal-cell out';
+      empty.style.visibility='hidden';
+      grid.appendChild(empty);
+    }
+    for(d=1; d<=daysInMonth; d++){
+      var date=new Date(y,m,d);
+      var f=genFortune(BY_KEY[current.key], 'today', date);
+      var t=tierInfo(f.overall);
+      var cell=document.createElement('div');
+      cell.className='cal-cell'+(date.getDay()===0||date.getDay()===6?' weekend':'');
+      cell.innerHTML='<span class="tier" style="background:'+t.color+';box-shadow:0 0 8px '+t.color+'"></span>'+
+        '<span class="d">'+d+'</span>';
+      (function(dd, ff){
+        cell.addEventListener('click', function(){ showCalDay(y, m, dd, ff); });
+      })(d, f);
+      grid.appendChild(cell);
+    }
+  }
+  function showCalDay(y, m, d, f){
+    var detail=document.getElementById('calDetail');
+    if(!detail) return;
+    var c=BY_KEY[current.key];
+    var t=tierInfo(f.overall);
+    var bars=DIMENSIONS.map(function(dd){
+      return '<div class="bar-row"><div class="bl">'+dd.label+'</div>'+
+        '<div class="bar-track"><div class="bar-fill" style="width:'+f.dim[dd.k]+'%;background:linear-gradient(90deg,'+dd.color+',#fff3)"></div></div>'+
+        '<div class="bv">'+f.dim[dd.k]+'</div></div>';
+    }).join('');
+    detail.innerHTML='<h4>'+c.name+' · '+y+'年'+(m+1)+'月'+d+'日　综合 '+f.overall+'（'+t.label+'）</h4>'+
+      '<div class="cd-row"><span class="cd-score" style="color:'+c.color+'">'+f.overall+'</span>'+
+        '<span style="color:var(--text-dim);font-size:13px">'+t.label+' · 守护星 '+c.planet+'</span></div>'+
+      '<div class="cd-bars">'+bars+'</div>'+
+      '<div class="detail" style="border:none;padding-top:12px;margin-top:4px"><p>'+f.detail+'</p>'+
+        '<div class="yiji"><span>宜：<b>'+f.yi+'</b></span><span>忌：<b>'+f.ji+'</b></span></div>'+
+        '<div class="quote">「'+f.quote+'」</div>'+
+        '<div class="dir">🧭 吉位 · '+f.luckyDir.n+'：'+f.luckyDir.desc+'</div></div>';
+    detail.style.display='block';
+  }
+  function initCalendar(){
+    var prev=document.getElementById('calPrev'), next=document.getElementById('calNext');
+    if(prev) prev.addEventListener('click', function(){
+      calState.m--; if(calState.m<0){ calState.m=11; calState.y--; } renderCalendar();
+    });
+    if(next) next.addEventListener('click', function(){
+      calState.m++; if(calState.m>11){ calState.m=0; calState.y++; } renderCalendar();
+    });
+    renderCalendar();
+  }
+
   /* ---------- 启动 ---------- */
   function init(){
     var k=lsGet('star.key'); if(k&&BY_KEY[k]) current.key=k;
@@ -945,6 +1067,7 @@
     renderPanel();
     renderPair();
     renderHistory();
+    initCalendar();
     initTarot();
     starfield();
   }
