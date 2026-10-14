@@ -178,6 +178,18 @@
   .cal-detail .cd-score{font-family:"Orbitron",sans-serif;font-size:30px;font-weight:700}
   .cal-detail .cd-bars{display:grid;gap:8px}
 
+  /* 运势趋势 */
+  .trend-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:6px 0 12px}
+  .trend-head .th-tip{font-size:12px;color:var(--text-dim)}
+  .trend-wrap{position:relative}
+  .trend-canvas{width:100%;height:280px;display:block;border:1px solid var(--border);border-radius:16px;
+    background:linear-gradient(180deg,rgba(255,255,255,0.04),rgba(255,255,255,0.01));touch-action:manipulation}
+  .trend-detail{margin-top:14px;border-top:1px dashed var(--border);padding-top:14px;display:none}
+  .trend-detail h4{font-size:14px;color:var(--accent);margin-bottom:10px;letter-spacing:1px}
+  .trend-detail .td-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:10px}
+  .trend-detail .td-score{font-family:"Orbitron",sans-serif;font-size:30px;font-weight:700}
+  .trend-detail .td-bars{display:grid;gap:8px}
+
   /* 配对 */
   .pair-grid{display:grid;grid-template-columns:1fr auto 1fr;gap:14px;align-items:center}
   @media(max-width:640px){.pair-grid{grid-template-columns:1fr}}
@@ -259,6 +271,7 @@
 
   <nav class="modnav">
     <a href="#zodiac-main">🌟 星座运势</a>
+    <a href="#trend-title">📈 运势趋势</a>
     <a href="#calendar-title">📅 运势日历</a>
     <a href="#tarot">🔮 塔罗占卜</a>
   </nav>
@@ -270,10 +283,24 @@
       <input type="date" id="bday" data-page-node-id="FJDtwyZSBTZa1nPbd2LSnA" />
     </label>
     <span class="hint" id="bdayHint" data-page-node-id="gb1gjFxzFrCBva9GnY1W3Y">输入生日自动匹配星座</span>
+    <button id="birthPosterBtn" class="copy-btn" style="display:none">🎂 我的生日专属海报</button>
   </div>
 
   <div class="section-title" data-page-node-id="VUCBmU2y2TN77J9uvXMbFQ"><span class="dot" data-page-node-id="YdYmqRapnw52f657qHaNKa"></span><h2 data-page-node-id="FHvBrqCZwy5LYd6Fh0DycW">今日运势</h2><span class="line" data-page-node-id="HD0VmFvgOjx19FSEcezFKJ"></span></div>
   <div class="panel" id="panel" data-page-node-id="tqzfNxs7VUJk6hcbrHn8DL"></div>
+
+  <div class="section-title" id="trend-title"><span class="dot"></span><h2>📈 运势趋势</h2><span class="line"></span></div>
+  <div class="panel">
+    <p style="color:var(--text-dim);font-size:13px;margin-bottom:8px">所选星座在当前周期的综合运势走势：折线展示每日综合指数，点击任意节点查看当日详情。</p>
+    <div class="trend-head">
+      <span class="th-tip" id="trendTip"></span>
+      <span class="th-tip">综合指数 50–100　·　<font color="#FFD54F">大吉≥85</font> <font color="#81C784">中吉≥70</font> <font color="#4DD0E1">小吉≥60</font></span>
+    </div>
+    <div class="trend-wrap">
+      <canvas class="trend-canvas" id="trendCanvas"></canvas>
+    </div>
+    <div class="trend-detail" id="trendDetail"></div>
+  </div>
 
   <div class="section-title" id="history-title" style="display:none"><span class="dot"></span><h2>🕘 最近查看</h2><span class="line"></span></div>
   <div class="history" id="history" style="display:none"></div>
@@ -564,7 +591,8 @@
             ({today:'今日',tomorrow:'明日',week:'本周',month:'本月'})[m]+'</button>';
         }).join('')+
       '</div><button class="copy-btn" id="copyBtn">📋 复制运势</button>'+
-      '<button class="copy-btn" id="posterBtn">🖼️ 分享海报</button></div>'+
+      '<button class="copy-btn" id="posterBtn">🖼️ 分享海报</button>'+
+      '<button class="copy-btn" id="constPosterBtn">🎂 星座海报</button></div>'+
       '<div class="overall fade">'+
         '<div class="ring"><svg width="120" height="120">'+
           '<circle cx="60" cy="60" r="'+R+'" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="10"/>'+
@@ -599,8 +627,12 @@
     if(copyBtn){ copyBtn.addEventListener('click', function(){ copyFortune(c, current.mode, f, copyBtn); }); }
     var posterBtn=panel.querySelector('#posterBtn');
     if(posterBtn){ posterBtn.addEventListener('click', function(){ downloadPoster(c, current.mode, f, posterBtn); }); }
+    var constPosterBtn=panel.querySelector('#constPosterBtn');
+    if(constPosterBtn){ constPosterBtn.addEventListener('click', function(){ downloadConstPoster(c, null, constPosterBtn); }); }
     // 记录最近查看
     recordHistory(c.key, current.mode, f.overall);
+    // 重绘趋势图
+    renderTrend();
   }
 
   function renderPair(){
@@ -617,7 +649,7 @@
   function selectConstellation(key){
     current.key=key;
     setAccent(BY_KEY[key]);
-    renderGrid(); renderPanel(); renderCalendar();
+    renderGrid(); renderPanel(); renderCalendar(); renderTrend();
     lsSet('star.key', key);
   }
 
@@ -851,16 +883,30 @@
   function initBirthday(){
     var inp=document.getElementById('bday');
     var hint=document.getElementById('bdayHint');
+    var bpBtn=document.getElementById('birthPosterBtn');
     var saved=lsGet('star.bday'); if(saved) inp.value=saved;
+    function bindBirthPoster(c){
+      if(!bpBtn) return;
+      bpBtn.style.display='';
+      bpBtn.onclick=function(){ downloadConstPoster(c, inp.value, bpBtn); };
+    }
     inp.addEventListener('change', function(){
-      if(!inp.value){ hint.textContent='输入生日自动匹配星座'; return; }
+      if(!inp.value){ hint.textContent='输入生日自动匹配星座'; if(bpBtn) bpBtn.style.display='none'; return; }
       var p=inp.value.split('-'); var m=+p[1], d=+p[2];
       var c=constellationOf(m,d);
       selectConstellation(c.key);
       hint.textContent='已识别为 '+c.name+'（'+c.start[1]+'/'+c.start[0]+'–'+c.end[1]+'/'+c.end[0]+'）';
       lsSet('star.bday', inp.value);
+      bindBirthPoster(c);
       document.querySelector('.section-title').scrollIntoView({behavior:'smooth'});
     });
+    // 若已保存生日，则直接识别并展示生日海报入口
+    if(saved){
+      var pp=saved.split('-'); var cm=+pp[1], cd=+pp[2];
+      var cc=constellationOf(cm,cd);
+      hint.textContent='已识别为 '+cc.name+'（'+cc.start[1]+'/'+cc.start[0]+'–'+cc.end[1]+'/'+cc.end[0]+'）';
+      bindBirthPoster(cc);
+    }
   }
 
   /* ---------- 星空背景 ---------- */
@@ -1057,6 +1103,201 @@
     renderCalendar();
   }
 
+  /* ---------- 运势趋势折线 ---------- */
+  var trendPoints=[];
+  function trendDates(mode){
+    var arr=[];
+    if(mode==='week'){ var w=weekRange(TODAY); for(var i=0;i<7;i++) arr.push(addDays(w.mon,i)); }
+    else if(mode==='month'){ var y=TODAY.getFullYear(), m=TODAY.getMonth(); var n=new Date(y,m+1,0).getDate();
+      for(var d=1;d<=n;d++) arr.push(new Date(y,m,d)); }
+    else { var start=(mode==='tomorrow')?addDays(TODAY,1):TODAY; for(var k=0;k<7;k++) arr.push(addDays(start,k)); }
+    return arr;
+  }
+  function renderTrend(){
+    var canvas=document.getElementById('trendCanvas'); if(!canvas) return;
+    var wrap=canvas.parentNode; var cw=wrap.clientWidth||600; var ch=280;
+    var dpr=window.devicePixelRatio||1;
+    canvas.width=Math.round(cw*dpr); canvas.height=Math.round(ch*dpr);
+    canvas.style.height=ch+'px';
+    var ctx=canvas.getContext('2d'); ctx.setTransform(dpr,0,0,dpr,0,0);
+    ctx.clearRect(0,0,cw,ch);
+    var c=BY_KEY[current.key]; var dates=trendDates(current.mode);
+    var items=dates.map(function(dt){ return {dt:dt, f:genFortune(c,'today',dt)}; });
+    var vals=items.map(function(it){ return it.f.overall; });
+    var padL=42, padR=16, padT=18, padB=34;
+    var x0=padL, x1=cw-padR, y0=padT, y1=ch-padB, yMin=50, yMax=100;
+    function X(i){ return x0 + (x1-x0)*(dates.length===1?0.5:i/(dates.length-1)); }
+    function Y(v){ return y1 - (y1-y0)*((v-yMin)/(yMax-yMin)); }
+    // 档位网格
+    var tiers=[{v:85,c:'#FFD54F',t:'大吉'},{v:70,c:'#81C784',t:'中吉'},{v:60,c:'#4DD0E1',t:'小吉'}];
+    ctx.font='11px "Noto Serif SC", serif'; ctx.textBaseline='middle';
+    tiers.forEach(function(t){ var y=Y(t.v);
+      ctx.strokeStyle='rgba(255,255,255,0.08)'; ctx.lineWidth=1;
+      ctx.beginPath(); ctx.moveTo(x0,y); ctx.lineTo(x1,y); ctx.stroke();
+      ctx.fillStyle=t.c; ctx.textAlign='right'; ctx.fillText(t.t, x0-6, y); });
+    ctx.fillStyle='rgba(176,168,208,0.6)'; ctx.textAlign='right';
+    ctx.fillText('100', x0-6, Y(100)); ctx.fillText('50', x0-6, Y(50));
+    var color=c.color;
+    // 面积填充
+    ctx.beginPath();
+    items.forEach(function(it,i){ var x=X(i),y=Y(it.f.overall); if(i===0)ctx.moveTo(x,y); else ctx.lineTo(x,y); });
+    ctx.lineTo(X(items.length-1), y1); ctx.lineTo(X(0), y1); ctx.closePath();
+    var grad=ctx.createLinearGradient(0,y0,0,y1);
+    grad.addColorStop(0, hexA(color,0.35)); grad.addColorStop(1, hexA(color,0.02));
+    ctx.fillStyle=grad; ctx.fill();
+    // 折线
+    ctx.beginPath();
+    items.forEach(function(it,i){ var x=X(i),y=Y(it.f.overall); if(i===0)ctx.moveTo(x,y); else ctx.lineTo(x,y); });
+    ctx.strokeStyle=color; ctx.lineWidth=2.5; ctx.lineJoin='round'; ctx.lineCap='round';
+    ctx.shadowColor=color; ctx.shadowBlur=8; ctx.stroke(); ctx.shadowBlur=0;
+    // 节点 + x 标签
+    trendPoints=[];
+    var labStep=Math.max(1, Math.ceil(dates.length/8));
+    items.forEach(function(it,i){
+      var x=X(i), y=Y(it.f.overall); var isToday=(ymd(it.dt)===ymd(TODAY));
+      ctx.beginPath(); ctx.arc(x,y, isToday?5:3.5, 0, Math.PI*2);
+      ctx.fillStyle='#0B0C2A'; ctx.fill(); ctx.lineWidth=2; ctx.strokeStyle=color; ctx.stroke();
+      if(isToday){ ctx.beginPath(); ctx.arc(x,y,9,0,Math.PI*2); ctx.strokeStyle=hexA(color,0.4); ctx.lineWidth=2; ctx.stroke(); }
+      trendPoints.push({x:x,y:y,dt:it.dt,f:it.f});
+      if(i%labStep===0 || i===dates.length-1){
+        ctx.fillStyle='rgba(176,168,208,0.8)'; ctx.font='10px "Noto Serif SC", serif';
+        ctx.textAlign='center'; ctx.textBaseline='top';
+        ctx.fillText((it.dt.getMonth()+1)+'/'+it.dt.getDate(), x, y1+8); ctx.textBaseline='middle';
+      }
+    });
+    var tip=document.getElementById('trendTip');
+    if(tip){ var mn={today:'今日',tomorrow:'明日',week:'本周',month:'本月'}[current.mode];
+      tip.textContent=c.name+' · '+mn+'运势走势（共 '+dates.length+' 天，点击节点看详情）'; }
+  }
+  function showTrendDay(p){
+    var c=BY_KEY[current.key], f=p.f, t=tierInfo(f.overall);
+    var detail=document.getElementById('trendDetail'); if(!detail) return;
+    var bars=DIMENSIONS.map(function(dd){
+      return '<div class="bar-row"><div class="bl">'+dd.label+'</div>'+
+        '<div class="bar-track"><div class="bar-fill" style="width:'+f.dim[dd.k]+'%;background:linear-gradient(90deg,'+dd.color+',#fff3)"></div></div>'+
+        '<div class="bv">'+f.dim[dd.k]+'</div></div>';
+    }).join('');
+    detail.innerHTML='<h4>'+c.name+' · '+p.dt.getFullYear()+'年'+(p.dt.getMonth()+1)+'月'+p.dt.getDate()+'日　综合 '+f.overall+'（'+t.label+'）</h4>'+
+      '<div class="td-row"><span class="td-score" style="color:'+c.color+'">'+f.overall+'</span>'+
+        '<span style="color:var(--text-dim);font-size:13px">'+t.label+' · 守护星 '+c.planet+'</span></div>'+
+      '<div class="td-bars">'+bars+'</div>'+
+      '<div class="detail" style="border:none;padding-top:12px;margin-top:4px"><p>'+f.detail+'</p>'+
+        '<div class="yiji"><span>宜：<b>'+f.yi+'</b></span><span>忌：<b>'+f.ji+'</b></span></div>'+
+        '<div class="quote">「'+f.quote+'」</div>'+
+        '<div class="dir">🧭 吉位 · '+f.luckyDir.n+'：'+f.luckyDir.desc+'</div></div>';
+    detail.style.display='block';
+  }
+  function initTrend(){
+    var canvas=document.getElementById('trendCanvas');
+    if(canvas){
+      canvas.addEventListener('click', function(e){
+        var rect=canvas.getBoundingClientRect();
+        var px=e.clientX-rect.left, py=e.clientY-rect.top;
+        var best=null, bestD=1e9;
+        trendPoints.forEach(function(pt){ var dx=pt.x-px, dy=pt.y-py, dd=dx*dx+dy*dy;
+          if(dd<bestD){ bestD=dd; best=pt; } });
+        if(best && bestD<=28*28) showTrendDay(best);
+      });
+    }
+    addEventListener('resize', debounce(renderTrend, 200));
+    renderTrend();
+  }
+
+  /* ---------- 星座 / 生日专属海报 ---------- */
+  function wrapTextLines(ctx,text,maxW){
+    var chars=text.split(''); var line='', lines=[];
+    for(var i=0;i<chars.length;i++){ var test=line+chars[i];
+      if(ctx.measureText(test).width>maxW && line){ lines.push(line); line=chars[i]; } else line=test; }
+    if(line) lines.push(line); return lines;
+  }
+  function downloadConstPoster(c, bdayStr, btn){
+    var isBirth = !!bdayStr;
+    var f = genFortune(c, 'today', TODAY);
+    var seedBase = isBirth ? ('BP|'+bdayStr+'|'+c.key) : ('CP|'+c.key+'|'+ymd(TODAY));
+    var r = rng(seedBase);
+    var reading = c.name+'本周能量以'+c.trait+'为底色。'+
+      pick(r, ['你天生带着'+c.el+'象的灵动，',''+c.el+'象赋予你独特的节奏，','守护星'+c.planet+'正为你加持，'])+
+      pick(r, ['适合把想法落地为行动。','不妨给目标多一点耐心与笃定。','在人际中展现真实会更受欢迎。','把注意力放在能改变的事上，自会水到渠成。']);
+    var blessing = isBirth
+      ? pick(r, ['愿这个属于你的日子，被星光温柔包裹。','生日快乐！愿新一岁的你，所求皆所愿。','星河滚烫，你是人间理想；生日快乐。'])
+      : pick(r, ['愿星辰为你指路，今日能量满格。','星语相伴，愿你被这世界温柔以待。','今日宜相信自己，宇宙正在为你让路。']);
+    var tags = [c.el+'象星座', c.trait, '守护星 '+c.planet];
+    if(isBirth){ var pp=bdayStr.split('-'); var bd=new Date(+pp[0],+pp[1]-1,+pp[2]); tags.unshift((bd.getMonth()+1)+'月'+bd.getDate()+'日生日'); }
+    var data = {
+      c:c, title: isBirth?'我的星座专属海报':'星座守护海报',
+      subtitle: isBirth ? (bdayStr+' · '+c.start[1]+'/'+c.start[0]+'–'+c.end[1]+'/'+c.end[0])
+                        : (periodLabel('today',TODAY)+' · 守护星 '+c.planet),
+      bdayText: isBirth ? '🎂 生日 '+bdayStr : null,
+      tags:tags, reading:reading, lucky:f, blessing:blessing
+    };
+    paintConstPoster(data, btn, isBirth?'星语-'+c.name+'-生日海报':'星语-'+c.name+'-星座海报');
+  }
+  function paintConstPoster(data, btn, fname){
+    var W=640, H=1040, scale=2;
+    var cv=document.createElement('canvas'); cv.width=W*scale; cv.height=H*scale;
+    var ctx=cv.getContext('2d'); ctx.scale(scale,scale);
+    var c=data.c;
+    var bg=ctx.createLinearGradient(0,0,0,H);
+    bg.addColorStop(0,'#1A1040'); bg.addColorStop(1,'#0B0C2A');
+    ctx.fillStyle=bg; ctx.fillRect(0,0,W,H);
+    drawGlow(ctx, W*0.82, H*0.12, 300, 'rgba(124,77,255,0.22)');
+    drawGlow(ctx, W*0.14, H*0.9, 260, 'rgba(77,208,225,0.16)');
+    for(var i=0;i<140;i++){ var sx=Math.random()*W,sy=Math.random()*H,sr=Math.random()*1.3+0.3;
+      ctx.fillStyle='rgba(255,255,255,'+(0.35+Math.random()*0.6)+')';
+      ctx.beginPath(); ctx.arc(sx,sy,sr,0,Math.PI*2); ctx.fill(); }
+    ctx.textAlign='center';
+    ctx.fillStyle='rgba(255,213,79,0.9)'; ctx.font='600 14px Orbitron, sans-serif';
+    ctx.fillText('Z O D I A C   O R A C L E', W/2, 58);
+    ctx.fillStyle='#F5F3FF'; ctx.font='700 28px "Noto Serif SC", serif';
+    ctx.fillText(data.title, W/2, 102);
+    ctx.save(); ctx.shadowColor=c.color; ctx.shadowBlur=34; ctx.fillStyle=c.color;
+    ctx.font='140px "Segoe UI Symbol","Noto Sans Symbols2","Noto Sans Symbols",serif';
+    ctx.fillText(c.symbol, W/2, 280); ctx.restore();
+    ctx.fillStyle='#F5F3FF'; ctx.font='700 38px "Noto Serif SC", serif';
+    ctx.fillText(c.name, W/2, 344);
+    ctx.fillStyle='rgba(176,168,208,0.95)'; ctx.font='15px "Noto Serif SC", serif';
+    ctx.fillText(data.subtitle, W/2, 376);
+    var tagY = data.bdayText ? 418 : 410;
+    if(data.bdayText){ ctx.fillStyle='rgba(255,213,79,0.95)'; ctx.font='16px "Noto Serif SC", serif';
+      ctx.fillText(data.bdayText, W/2, tagY-34); }
+    ctx.font='13px "Noto Serif SC", serif';
+    var tw=data.tags.map(function(t){ return ctx.measureText(t).width+24; });
+    var totalW=tw.reduce(function(a,b){return a+b;},0)+(data.tags.length-1)*10;
+    var tx0=(W-totalW)/2;
+    data.tags.forEach(function(t,idx){ var w=tw[idx], x=tx0;
+      ctx.fillStyle='rgba(255,255,255,0.08)'; ctx.strokeStyle=hexA(c.color,0.5); ctx.lineWidth=1;
+      roundRect(ctx,x,tagY-16,w,30,15); ctx.fill(); ctx.stroke();
+      ctx.fillStyle='#F5F3FF'; ctx.fillText(t, x+w/2, tagY);
+      tx0 += w+10; });
+    // 专属解读
+    var ry=tagY+44;
+    ctx.textAlign='left'; ctx.fillStyle='rgba(176,168,208,0.9)'; ctx.font='13px "Noto Serif SC", serif';
+    ctx.fillText('✧ 星座能量解读', 70, ry);
+    ctx.fillStyle='#F5F3FF'; ctx.font='15px "Noto Serif SC", serif';
+    var rlines=wrapTextLines(ctx, data.reading, W-140);
+    rlines.forEach(function(ln,idx){ ctx.fillText(ln, 70, ry+26+idx*26); });
+    // 幸运要素（底部固定）
+    var ly=H-150;
+    ctx.textAlign='center'; ctx.fillStyle='rgba(176,168,208,0.9)'; ctx.font='13px "Noto Serif SC", serif';
+    var llines=wrapTextLines(ctx, '幸运数字 '+data.lucky.luckyNum+'　·　幸运颜色 '+data.lucky.luckyColor.n+'　·　吉位 '+data.lucky.luckyDir.n, W-80);
+    llines.forEach(function(ln,idx){ ctx.fillText(ln, W/2, ly+idx*22); });
+    // 专属祝福
+    ctx.fillStyle='rgba(77,208,225,0.95)'; ctx.font='italic 15px "Noto Serif SC", serif';
+    var blines=wrapTextLines(ctx, '「'+data.blessing+'」', W-120);
+    blines.forEach(function(ln,idx){ ctx.fillText(ln, W/2, H-96+idx*24); });
+    // 页脚
+    ctx.fillStyle='rgba(176,168,208,0.55)'; ctx.font='12px "Noto Serif SC", serif';
+    ctx.fillText('星语 · 仅供娱乐参考', W/2, H-32);
+    try{
+      var a=document.createElement('a');
+      a.download=fname+'.png'; a.href=cv.toDataURL('image/png');
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      if(btn){ btn.textContent='✓ 已生成'; setTimeout(function(){ if(btn) btn.textContent=isBirth?'🎂 我的生日专属海报':'🎂 星座海报'; }, 1500); }
+    }catch(e){
+      if(btn){ btn.textContent='⚠ 生成失败'; setTimeout(function(){ if(btn) btn.textContent=isBirth?'🎂 我的生日专属海报':'🎂 星座海报'; }, 1500); }
+    }
+  }
+
   /* ---------- 启动 ---------- */
   function init(){
     var k=lsGet('star.key'); if(k&&BY_KEY[k]) current.key=k;
@@ -1069,6 +1310,7 @@
     renderHistory();
     initCalendar();
     initTarot();
+    initTrend();
     starfield();
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', init);
