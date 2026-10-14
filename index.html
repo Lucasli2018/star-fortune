@@ -513,7 +513,8 @@
           return '<button data-m="'+m+'" class="'+(m===current.mode?'active':'')+'">'+
             ({today:'今日',tomorrow:'明日',week:'本周',month:'本月'})[m]+'</button>';
         }).join('')+
-      '</div><button class="copy-btn" id="copyBtn">📋 复制运势</button></div>'+
+      '</div><button class="copy-btn" id="copyBtn">📋 复制运势</button>'+
+      '<button class="copy-btn" id="posterBtn">🖼️ 分享海报</button></div>'+
       '<div class="overall fade">'+
         '<div class="ring"><svg width="120" height="120">'+
           '<circle cx="60" cy="60" r="'+R+'" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="10"/>'+
@@ -544,6 +545,8 @@
     // 绑定复制运势
     var copyBtn=panel.querySelector('#copyBtn');
     if(copyBtn){ copyBtn.addEventListener('click', function(){ copyFortune(c, current.mode, f, copyBtn); }); }
+    var posterBtn=panel.querySelector('#posterBtn');
+    if(posterBtn){ posterBtn.addEventListener('click', function(){ downloadPoster(c, current.mode, f, posterBtn); }); }
     // 记录最近查看
     recordHistory(c.key, current.mode, f.overall);
   }
@@ -596,11 +599,11 @@
       t=setTimeout(function(){ fn.apply(c, a); }, wait); };
   }
 
-  /* ---------- 复制运势文案 ---------- */
-  function copyFortune(c, mode, f, btn){
+  /* ---------- 运势文案（复制 / 分享海报共用） ---------- */
+  function buildFortuneText(c, mode, f){
     var modeName={today:'今日',tomorrow:'明日',week:'本周',month:'本月'}[mode];
     var lvText=f.overall>=85?'大吉':(f.overall>=70?'中吉':(f.overall>=60?'小吉':'平'));
-    var text=[
+    return [
       '【星语 · 星座运势】',
       c.name+' · '+modeName+'（'+periodLabel(mode,TODAY)+'）',
       '守护星：'+c.planet,
@@ -611,6 +614,38 @@
       '宜：'+f.yi+'　忌：'+f.ji,
       '「'+f.quote+'」'
     ].join('\n');
+  }
+
+  /* ---------- Canvas 绘制辅助 ---------- */
+  function drawGlow(ctx,x,y,r,color){
+    var g=ctx.createRadialGradient(x,y,0,x,y,r);
+    g.addColorStop(0,color); g.addColorStop(1,'rgba(0,0,0,0)');
+    ctx.fillStyle=g; ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2); ctx.fill();
+  }
+  function roundRect(ctx,x,y,w,h,r){
+    if(w<2*r) r=w/2; if(h<2*r) r=h/2;
+    ctx.beginPath();
+    ctx.moveTo(x+r,y);
+    ctx.arcTo(x+w,y,x+w,y+h,r);
+    ctx.arcTo(x+w,y+h,x,y+h,r);
+    ctx.arcTo(x,y+h,x,y,r);
+    ctx.arcTo(x,y,x+w,y,r);
+    ctx.closePath();
+  }
+  function wrapText(ctx,text,cx,y,maxW,lh){
+    var chars=text.split(''); var line='', lines=[];
+    for(var i=0;i<chars.length;i++){
+      var test=line+chars[i];
+      if(ctx.measureText(test).width>maxW && line){ lines.push(line); line=chars[i]; }
+      else line=test;
+    }
+    if(line) lines.push(line);
+    lines.forEach(function(ln,idx){ ctx.fillText(ln, cx, y+idx*lh); });
+  }
+
+  /* ---------- 复制运势文案 ---------- */
+  function copyFortune(c, mode, f, btn){
+    var text=buildFortuneText(c, mode, f);
     function ok(){ if(btn){ btn.textContent='✓ 已复制'; btn.classList.add('done');
       setTimeout(function(){ btn.textContent='📋 复制运势'; btn.classList.remove('done'); }, 1500); } }
     function fail(){ if(btn){ btn.textContent='⚠ 复制失败';
@@ -629,6 +664,98 @@
       var done=document.execCommand('copy'); document.body.removeChild(ta);
       done?ok():fail();
     }catch(e){ fail(); }
+  }
+
+  /* ---------- 分享海报（Canvas 生成 PNG） ---------- */
+  function downloadPoster(c, mode, f, btn){
+    var modeName={today:'今日',tomorrow:'明日',week:'本周',month:'本月'}[mode];
+    var W=640, H=1000, scale=2;
+    var cv=document.createElement('canvas');
+    cv.width=W*scale; cv.height=H*scale;
+    var ctx=cv.getContext('2d');
+    ctx.scale(scale,scale);
+    // 背景渐变
+    var bg=ctx.createLinearGradient(0,0,0,H);
+    bg.addColorStop(0,'#1A1040'); bg.addColorStop(1,'#0B0C2A');
+    ctx.fillStyle=bg; ctx.fillRect(0,0,W,H);
+    // 星云光晕
+    drawGlow(ctx, W*0.82, H*0.16, 320, 'rgba(124,77,255,0.22)');
+    drawGlow(ctx, W*0.14, H*0.82, 280, 'rgba(77,208,225,0.16)');
+    // 星点
+    for(var i=0;i<130;i++){
+      var sx=Math.random()*W, sy=Math.random()*H, sr=Math.random()*1.3+0.3;
+      ctx.fillStyle='rgba(255,255,255,'+(0.35+Math.random()*0.6)+')';
+      ctx.beginPath(); ctx.arc(sx,sy,sr,0,Math.PI*2); ctx.fill();
+    }
+    ctx.textAlign='center';
+    // 顶部徽标
+    ctx.fillStyle='rgba(255,213,79,0.9)'; ctx.font='600 14px Orbitron, sans-serif';
+    ctx.fillText('Z O D I A C   O R A C L E', W/2, 58);
+    // 标题
+    ctx.fillStyle='#F5F3FF'; ctx.font='700 30px "Noto Serif SC", serif';
+    ctx.fillText('星语 · 星座运势', W/2, 106);
+    // 星座符号
+    ctx.save();
+    ctx.shadowColor=c.color; ctx.shadowBlur=30;
+    ctx.fillStyle=c.color; ctx.font='120px "Segoe UI Symbol","Noto Sans Symbols2","Noto Sans Symbols",serif';
+    ctx.fillText(c.symbol, W/2, 252);
+    ctx.restore();
+    // 名称 + 周期
+    ctx.fillStyle='#F5F3FF'; ctx.font='700 34px "Noto Serif SC", serif';
+    ctx.fillText(c.name, W/2, 312);
+    ctx.fillStyle='rgba(176,168,208,0.95)'; ctx.font='15px "Noto Serif SC", serif';
+    ctx.fillText(periodLabel(mode,TODAY)+'　守护星 '+c.planet, W/2, 342);
+    // 综合指数环
+    var cx=W/2, cy=450, R=72;
+    ctx.lineWidth=12; ctx.strokeStyle='rgba(255,255,255,0.1)';
+    ctx.beginPath(); ctx.arc(cx,cy,R,0,Math.PI*2); ctx.stroke();
+    var off=2*Math.PI*R*(1-f.overall/100);
+    ctx.strokeStyle=c.color; ctx.lineCap='round';
+    ctx.beginPath(); ctx.arc(cx,cy,R,-Math.PI/2,-Math.PI/2+(2*Math.PI-off)); ctx.stroke();
+    var lvText=f.overall>=85?'大吉':(f.overall>=70?'中吉':(f.overall>=60?'小吉':'平'));
+    ctx.fillStyle=c.color; ctx.font='700 18px "Noto Serif SC", serif';
+    ctx.fillText(lvText, cx, cy-94);
+    ctx.fillStyle='#FFD54F'; ctx.font='700 46px Orbitron, sans-serif';
+    ctx.fillText(f.overall, cx, cy+10);
+    ctx.fillStyle='rgba(176,168,208,0.9)'; ctx.font='13px "Noto Serif SC", serif';
+    ctx.fillText('综合指数', cx, cy+36);
+    // 分项指数
+    var dy=576;
+    DIMENSIONS.forEach(function(d){
+      var v=f.dim[d.k];
+      ctx.textAlign='left';
+      ctx.fillStyle='#F5F3FF'; ctx.font='15px "Noto Serif SC", serif';
+      ctx.fillText(d.label, 70, dy);
+      ctx.textAlign='right';
+      ctx.fillStyle=d.color; ctx.font='700 16px Orbitron, sans-serif';
+      ctx.fillText(v, W-70, dy);
+      var bx=132, bw=W-262, by=dy-10;
+      ctx.fillStyle='rgba(255,255,255,0.08)'; roundRect(ctx,bx,by,bw,8,4); ctx.fill();
+      ctx.fillStyle=d.color; roundRect(ctx,bx,by,Math.max(8,bw*v/100),8,4); ctx.fill();
+      dy+=46;
+    });
+    // 幸运要素
+    ctx.textAlign='center';
+    ctx.fillStyle='rgba(176,168,208,0.9)'; ctx.font='13px "Noto Serif SC", serif';
+    ctx.fillText('幸运数字 '+f.luckyNum+'　·　幸运颜色 '+f.luckyColor.n+'　·　速配 '+f.pair, W/2, 838);
+    // 寄语
+    ctx.fillStyle='rgba(77,208,225,0.95)'; ctx.font='italic 15px "Noto Serif SC", serif';
+    wrapText(ctx, '「'+f.quote+'」', W/2, 882, W-120, 24);
+    // 页脚
+    ctx.fillStyle='rgba(176,168,208,0.55)'; ctx.font='12px "Noto Serif SC", serif';
+    ctx.fillText('星语 · 仅供娱乐参考', W/2, H-28);
+    // 导出下载
+    try{
+      var a=document.createElement('a');
+      a.download='星语-'+c.name+'-'+modeName+'运势.png';
+      a.href=cv.toDataURL('image/png');
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      if(btn){ btn.textContent='✓ 已生成'; setTimeout(function(){
+        if(btn) btn.textContent='🖼️ 分享海报'; }, 1500); }
+    }catch(e){
+      if(btn){ btn.textContent='⚠ 生成失败'; setTimeout(function(){
+        if(btn) btn.textContent='🖼️ 分享海报'; }, 1500); }
+    }
   }
 
   /* ---------- 最近查看历史 ---------- */
