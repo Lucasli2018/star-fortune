@@ -77,7 +77,13 @@
   .c-card .sym{font-size:34px;line-height:1;color:var(--c-accent,var(--primary));text-shadow:0 0 16px var(--c-glow,rgba(124,77,255,0.5))}
   .c-card .nm{margin-top:8px;font-weight:700;font-size:15px}
   .c-card .dt{margin-top:2px;font-size:11px;color:var(--text-dim);font-family:"Orbitron",sans-serif}
-  .c-card .el{position:absolute;top:8px;right:8px;font-size:10px;padding:2px 7px;border-radius:999px;
+  .c-card .cimg{position:absolute;inset:0;z-index:0;background-size:cover;background-position:center;
+    opacity:.5;transition:opacity .3s ease, transform .5s ease}
+  .c-card:hover .cimg{opacity:.68;transform:scale(1.06)}
+  .c-card::after{content:'';position:absolute;inset:0;z-index:1;pointer-events:none;
+    background:linear-gradient(180deg,rgba(11,12,42,0.28),rgba(11,12,42,0.6) 55%,rgba(11,12,42,0.86))}
+  .c-card .sym,.c-card .nm,.c-card .dt{position:relative;z-index:2}
+  .c-card .el{position:absolute;top:8px;right:8px;z-index:2;font-size:10px;padding:2px 7px;border-radius:999px;
     background:var(--c-soft,rgba(124,77,255,0.2));color:var(--c-accent,var(--primary));border:1px solid var(--c-border,var(--border))}
 
   .tools{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-top:16px}
@@ -225,28 +231,24 @@
     box-shadow:none;font-weight:400}
   .tarot-actions button:hover{transform:translateY(-2px)}
   .tarot-draw{display:flex;gap:18px;flex-wrap:wrap;justify-content:center}
-  .tarot-card{width:130px;height:200px;perspective:900px;cursor:pointer}
+  .tarot-card{width:132px;height:198px;perspective:900px;cursor:pointer}
   .tarot-inner{position:relative;width:100%;height:100%;transition:transform .7s cubic-bezier(.2,.8,.2,1);
     transform-style:preserve-3d}
   .tarot-card.flipped .tarot-inner{transform:rotateY(180deg)}
   .tarot-face{position:absolute;inset:0;border-radius:14px;backface-visibility:hidden;
-    border:1px solid var(--border);display:flex;flex-direction:column;align-items:center;justify-content:center;
-    padding:10px;text-align:center;overflow:hidden}
-  .tarot-back{background:linear-gradient(160deg,rgba(124,77,255,0.25),rgba(77,208,225,0.12));
-    box-shadow:0 8px 24px rgba(0,0,0,0.4)}
-  .tarot-back .bk{font-size:34px;color:var(--accent);text-shadow:0 0 16px rgba(255,213,79,0.6);
-    animation:spin 12s linear infinite}
-  .tarot-back .bt{font-size:11px;color:var(--text-dim);margin-top:8px;letter-spacing:2px;font-family:"Orbitron"}
-  @keyframes spin{to{transform:rotate(360deg)}}
-  .tarot-front{transform:rotateY(180deg);background:
-    radial-gradient(120px 120px at 50% 30%, rgba(124,77,255,0.35), transparent 70%),
-    linear-gradient(160deg,#2a1a6e,#0B0C2A);
-    box-shadow:0 8px 24px rgba(0,0,0,0.45)}
-  .tarot-front .tnum{font-family:"Orbitron";font-size:13px;color:var(--accent);letter-spacing:1px}
-  .tarot-front .tsym{font-size:50px;margin:6px 0;filter:drop-shadow(0 0 10px rgba(255,213,79,0.5))}
-  .tarot-front .tnm{font-weight:700;font-size:15px}
-  .tarot-front .ten{font-size:10px;color:var(--text-dim);font-family:"Orbitron";margin-top:2px}
-  .tarot-front.rev .tsym{transform:rotate(180deg)}
+    border:1px solid var(--border);overflow:hidden;background:#0B0C2A}
+  .tarot-face .timg{position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:cover}
+  .tarot-back{box-shadow:0 8px 24px rgba(0,0,0,0.4)}
+  .tarot-front{transform:rotateY(180deg);box-shadow:0 8px 24px rgba(0,0,0,0.45)}
+  .tarot-front.rev .timg{transform:rotate(180deg)}
+  .tarot-front .tover{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:space-between;
+    padding:7px 8px;text-align:center;
+    background:linear-gradient(180deg,rgba(11,12,42,0.62),rgba(11,12,42,0) 34%,rgba(11,12,42,0) 56%,rgba(11,12,42,0.84))}
+  .tarot-front .tnum{font-family:"Orbitron";font-size:12px;color:var(--accent);letter-spacing:1px;
+    align-self:flex-start;text-shadow:0 1px 5px rgba(0,0,0,0.9)}
+  .tarot-front .tnm{font-weight:700;font-size:14px;text-shadow:0 1px 6px rgba(0,0,0,0.9)}
+  .tarot-front .ten{font-size:9px;color:#E6E1FF;font-family:"Orbitron";letter-spacing:1px;margin-top:1px;
+    text-shadow:0 1px 5px rgba(0,0,0,0.9)}
   .tarot-front.rev .tnum::after{content:' 逆';color:var(--pink)}
   .tarot-read{margin-top:18px;border:1px solid var(--border);border-radius:18px;background:var(--card-strong);
     padding:18px;font-size:14px;color:var(--text);text-align:justify;line-height:1.8;overflow:hidden}
@@ -373,6 +375,11 @@
   ];
   var BY_KEY = {};
   CONSTELLATIONS.forEach(function(c){ BY_KEY[c.key]=c; });
+
+  /* 星座插画文件名（assets/zodiac/），key 与 CONSTELLATIONS 对应 */
+  var ZODIAC_IMG = {aries:'aries', taurus:'taurus', gemini:'gemini', cancer:'cancer', leo:'leo',
+    virgo:'virgo', libra:'libra', scorpio:'scorpio', sagitt:'sagittarius', capric:'capricorn',
+    aquarius:'aquarius', pisces:'pisces'};
 
   var LUCKY_COLORS = [
     {n:'珊瑚橙',v:'#FF7A59'},{n:'星空蓝',v:'#3E6BFF'},{n:'星云紫',v:'#7C4DFF'},
@@ -554,7 +561,8 @@
       card.style.setProperty('--c-glow', hexA(c.color,0.5));
       card.style.setProperty('--c-soft', hexA(c.color,0.18));
       card.style.setProperty('--c-border', hexA(c.color,0.4));
-      card.innerHTML='<span class="el">'+c.el+'象</span>'+
+      card.innerHTML='<div class="cimg" style="background-image:url(assets/zodiac/'+ZODIAC_IMG[c.key]+'.jpg)"></div>'+
+        '<span class="el">'+c.el+'象</span>'+
         '<div class="sym">'+c.symbol+'</div>'+
         '<div class="nm">'+c.name+'</div>'+
         '<div class="dt">'+c.start[1]+'/'+c.start[0]+'–'+c.end[1]+'/'+c.end[0]+'</div>';
@@ -972,6 +980,13 @@
     {n:21, roman:'XXI', cn:'世界', en:'The World', sym:'🌍', up:'圆满与达成。一段旅程画上句号，庆祝，然后迎接新循环。', rev:'临门一脚的松懈。收尾需要专注，未完成的闭环等待你补上。'}
   ];
 
+  /* 牌面图片文件名（assets/tarot/），下标与 TAROT[].n 一致 */
+  var TAROT_IMG = ['00-the-fool','01-the-magician','02-high-priestess','03-the-empress',
+    '04-the-emperor','05-the-hierophant','06-the-lovers','07-the-chariot','08-strength',
+    '09-the-hermit','10-wheel-of-fortune','11-justice','12-the-hanged-man','13-death',
+    '14-temperance','15-the-devil','16-the-tower','17-the-star','18-the-moon','19-the-sun',
+    '20-judgement','21-the-world'];
+
   function tarotOne(){
     var r = rng('T1|'+ymd(TODAY));
     var idx = Math.floor(r()*TAROT.length);
@@ -998,12 +1013,14 @@
       var d = document.createElement('div');
       d.className = 'tarot-card';
       d.innerHTML = '<div class="tarot-inner">'+
-        '<div class="tarot-face tarot-back"><div class="bk">✦</div><div class="bt">TAROT</div></div>'+
+        '<div class="tarot-face tarot-back"><img class="timg" src="assets/tarot/back.jpg" alt="塔罗牌背"></div>'+
         '<div class="tarot-face tarot-front'+(c.rev?' rev':'')+'">'+
-          '<div class="tnum">'+c.card.roman+'</div>'+
-          '<div class="tsym">'+c.card.sym+'</div>'+
-          '<div class="tnm">'+c.card.cn+'</div>'+
-          '<div class="ten">'+c.card.en+'</div>'+
+          '<img class="timg" src="assets/tarot/'+TAROT_IMG[c.card.n]+'.jpg" alt="'+c.card.cn+'">'+
+          '<div class="tover">'+
+            '<div class="tnum">'+c.card.roman+'</div>'+
+            '<div class="tcap"><div class="tnm">'+c.card.cn+'</div>'+
+            '<div class="ten">'+c.card.en+'</div></div>'+
+          '</div>'+
         '</div></div>';
       draw.appendChild(d);
       (function(el, delay){ setTimeout(function(){ el.classList.add('flipped'); }, delay); })(d, 200 + i*250);
